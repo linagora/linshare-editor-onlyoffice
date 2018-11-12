@@ -1,0 +1,36 @@
+{
+  "name": "linshare-editor-onlyoffice-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development nodemon",
+    "test": "npm run lint && mocha --recursive --file ./test/setup.js",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://ci.linagora.com/linagora/lgs/linshare/products/linshare-editor-onlyoffice-backend"
+  },
+  "author": "Linagora R&D",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "body-parser": "1.18.3",
+    "config": "2.0.1",
+    "cors": "2.8.5",
+    "express": "4.16.4",
+    "http": "0.0.0",
+    "morgan": "1.9.1",
+    "winston": "3.1.0"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "cross-env": "5.2.0",
+    "eslint": "5.9.0",
+    "eslint-config-airbnb-base": "13.1.0",
+    "eslint-plugin-import": "2.14.0",
+    "mocha": "5.2.0",
+    "nodemon": "1.18.6",
+    "supertest": "3.3.0"
+  }
+}
