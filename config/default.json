@@ -1,0 +1,20 @@
+{
+  "webserver": {
+    "port": 8081
+  },
+  "log": {
+    "file": {
+      "enabled": false,
+      "options": {
+        "filename": "./log/application.log",
+        "level": "info"
+      }
+    },
+    "console": {
+      "enabled": true,
+      "options": {
+        "level": "debug"
+      }
+    }
+  }
+}
