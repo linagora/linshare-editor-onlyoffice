@@ -16,5 +16,23 @@
         "level": "debug"
       }
     }
+  },
+  "db": {
+    "connectionOptions": {
+      "db": {
+        "w": 1,
+        "fsync": true,
+        "native_parser": true
+      },
+      "server": {
+        "socketOptions": {
+          "keepAlive": 10000,
+          "connectTimeoutMS": 10000
+        },
+        "auto_reconnect": true,
+        "poolSize": 10
+      }
+    },
+    "connectionString": "mongodb://localhost:20018/linshare-oo-editor"
   }
 }
