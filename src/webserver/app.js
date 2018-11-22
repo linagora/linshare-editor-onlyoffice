@@ -3,6 +3,7 @@ const http = require('http');
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const path = require('path');
 const logger = require('../lib/logger');
 const api = require('./api');
 
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/api', api());
 
 module.exports = app;
