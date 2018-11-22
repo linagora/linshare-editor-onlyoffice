@@ -3,9 +3,8 @@ const http = require('http');
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const config = require('config');
-const logger = require('./src/lib/logger');
-const api = require('./src/webserver/api');
+const logger = require('../lib/logger');
+const api = require('./api');
 
 const app = express();
 let format = 'combined';
@@ -22,8 +21,5 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use('/api', api());
-app.server.listen(process.env.PORT || config.webserver.port, () => {
-  logger.info(`Server started on port ${app.server.address().port}`);
-});
 
 module.exports = app;
