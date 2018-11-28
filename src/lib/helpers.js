@@ -40,7 +40,7 @@ async function writeFile(filePath, data) {
 }
 
 function getFileExtension(filename) {
-  return `.${filename.split('.').pop().toLowerCase()}`;
+  return `${filename.split('.').pop().toLowerCase()}`;
 }
 
 function getFileType(filename) {

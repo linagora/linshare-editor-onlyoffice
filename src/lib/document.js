@@ -2,6 +2,8 @@ const config = require('config');
 const path = require('path');
 const { Client } = require('linshare-api-client');
 
+const pubsub = require('../lib/pubsub');
+const { PUBSUB_EVENTS } = require('../lib/constants');
 const Files = require('../lib/files');
 const { generateToken } = require('./jwt');
 const { DOCUMENT_STATES } = require('./constants');
@@ -37,22 +39,27 @@ class Document {
 
     document.fileType = getFileExtension(document.name);
     document.documentType = getFileType(document.name);
+    if (this.isDownloaded()) {
+      document.downloadUrlPath = `/files/${this.uuid}`;
+    }
 
     Object.assign(this, document);
   }
 
   async save() {
     try {
-      await this.setState(DOCUMENT_STATES.downloading);
-
       const fileData = await this.storageService.downloadDocument(this.workGroup, this.uuid, {
         responseType: 'arrayBuffer'
       });
 
       await writeFile(this.filePath, fileData);
       await this.setState(DOCUMENT_STATES.downloaded);
+      await this.populateMetadata();
+
+      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).publish(this.denormalize());
     } catch (error) {
       await this.remove();
+      // TODO: Send a websocket event for download fail
 
       throw error;
     }
