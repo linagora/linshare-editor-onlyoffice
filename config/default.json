@@ -2,6 +2,12 @@
   "webserver": {
     "port": 8081
   },
+  "linshare": {
+    "jwt": {
+      "issuer": "linshare-editor",
+      "expirationTime": 300
+    }
+  },
   "log": {
     "file": {
       "enabled": false,
