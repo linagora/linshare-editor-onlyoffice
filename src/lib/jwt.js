@@ -10,15 +10,9 @@ module.exports = {
 };
 
 function generateToken(payload = {}) {
-  return jwt.sign(
-    {
-      ...payload,
-      iss: config.get('linshare.jwt.issuer')
-    },
-    privateKey,
-    {
-      algorithm: 'RS256',
-      expiresIn: config.get('linshare.jwt.expirationTime')
-    }
-  );
+  return jwt.sign(payload, privateKey, {
+    algorithm: 'RS256',
+    expiresIn: config.get('linshare.jwt.expirationTime') || 300000,
+    issuer: config.get('linshare.jwt.issuer')
+  });
 }

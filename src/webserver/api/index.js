@@ -1,10 +1,11 @@
 const express = require('express');
-const { sayHello } = require('../middleware');
+
+const documentApi = require('./document');
 
 module.exports = () => {
   const router = express.Router();
 
-  router.get('/', sayHello);
+  documentApi(router);
 
   return router;
 };

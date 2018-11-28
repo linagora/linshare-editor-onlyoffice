@@ -11,12 +11,14 @@ const api = require('./api');
 const app = express();
 let format = 'combined';
 
+app.server = http.createServer(app);
+
 module.exports = {
-  init
+  init,
+  server: app.server
 };
 
 function init() {
-  app.server = http.createServer(app);
   if (process.env.NODE_ENV === 'development') {
     format = 'dev';
   }

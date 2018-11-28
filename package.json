@@ -18,6 +18,8 @@
     "cors": "2.8.5",
     "express": "4.16.4",
     "http": "0.0.0",
+    "jsonwebtoken": "8.4.0",
+    "linshare-api-client": "0.0.12",
     "mongoose": "5.3.12",
     "morgan": "1.9.1",
     "winston": "3.1.0"

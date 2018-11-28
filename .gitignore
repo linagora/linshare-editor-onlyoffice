@@ -1,3 +1,4 @@
 node_modules/
 package-lock.json
-files/
+files/*
+config/development.json

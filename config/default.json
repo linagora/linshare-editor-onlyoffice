@@ -3,10 +3,11 @@
     "port": 8081
   },
   "linshare": {
+    "baseUrl": "http://files.linshare.local/linshare/webservice/rest",
     "jwt": {
       "issuer": "linshare-editor",
       "expirationTime": 300
-    }
+     }
   },
   "log": {
     "file": {

@@ -10,7 +10,9 @@ const FilesSchema = new mongoose.Schema({
   state: { type: String, required: true },
   size: { type: Number },
   sha256sum: { type: String },
-  description: { type: String }
+  description: { type: String },
+  fileType: { type: String },
+  documentType: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('files', FilesSchema);
