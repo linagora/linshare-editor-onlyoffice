@@ -6,7 +6,11 @@
     "baseUrl": "http://files.linshare.local/linshare/webservice/rest",
     "jwt": {
       "issuer": "linshare-editor",
-      "expirationTime": 300
+      "expirationTime": 300,
+      "token": {
+        "authorizationHeader": "authorization",
+        "authorizationHeaderPrefix": "Bearer "
+      }
      }
   },
   "log": {
