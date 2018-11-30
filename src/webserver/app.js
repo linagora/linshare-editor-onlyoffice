@@ -30,7 +30,7 @@ function init() {
     extended: true
   }));
   // TODO: add authorization method for getting static files
-  app.use('/files', express.static(path.join(__dirname, 'files')));
+  app.use('/files', express.static(path.join(__dirname, '../../files')));
   app.use('/api', api());
 
   app.server.listen(process.env.PORT || config.webserver.port, () => {
