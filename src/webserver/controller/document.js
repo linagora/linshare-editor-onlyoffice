@@ -9,7 +9,7 @@ module.exports = {
 async function getDocumentInfo(req, res) {
   try {
     const { documentUuid, workGroupUuid } = req.query;
-    const userEmail = req.user.email;
+    const userEmail = req.user.mail;
     const document = new Document(documentUuid, workGroupUuid, userEmail);
 
     await document.loadState();
@@ -21,8 +21,6 @@ async function getDocumentInfo(req, res) {
     if (document.state === DOCUMENT_STATES.downloaded) {
       await document.populateMetadata();
     }
-
-    document.denormalize();
 
     return res.status(200).json({
       ...document.denormalize(),
@@ -42,5 +40,5 @@ async function getDocumentInfo(req, res) {
 }
 
 function getDocumentUri(req, documentUuid) {
-  return `${req.protocol}://${req.get('host')}/files/${documentUuid}}`;
+  return `${req.protocol}://${req.get('host')}/files/${documentUuid}`;
 }

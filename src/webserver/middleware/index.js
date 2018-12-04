@@ -1,11 +1,59 @@
+const config = require('config');
+const { Client } = require('linshare-api-client');
+
+const logger = require('../../lib/logger');
+const { getTokenFromHeaders } = require('../../lib/jwt');
+
 module.exports = {
   requireQueries,
-  validateSession
+  loadAuthorizedUser
 };
 
-function validateSession(req, res, next) {
-  // TODO: validate request by sessionId
-  req.user = { email: 'user1@linshare.org' };
+async function loadAuthorizedUser(req, res, next) {
+  const token = getTokenFromHeaders(req.headers);
+
+  if (!token) {
+    res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'Requires jwt authorization token'
+      }
+    });
+  }
+
+  const client = new Client({
+    baseUrl: config.get('linshare.baseUrl'),
+    auth: {
+      type: 'jwt',
+      token
+    }
+  });
+
+  try {
+    req.user = await client.user.authentication.authorized();
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      res.status(401).json({
+        error: {
+          code: 401,
+          message: 'Unauthorized',
+          details: 'Invalid user authorization information'
+        }
+      });
+    } else {
+      logger.error('Unable to check user authorization', error);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Unable to check user authorization'
+        }
+      });
+    }
+  }
+
   next();
 }
 
