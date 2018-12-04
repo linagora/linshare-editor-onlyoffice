@@ -15,17 +15,17 @@ async function getDocumentInfo(req, res) {
     await document.loadState();
 
     if (!document.state) {
-      await document.save();
+      await document.setState(DOCUMENT_STATES.downloading);
+
+      document.save()
+        .catch(error => logger.error('Error while saving document', error));
     }
 
-    if (document.state === DOCUMENT_STATES.downloaded) {
+    if (document.isDownloaded()) {
       await document.populateMetadata();
     }
 
-    return res.status(200).json({
-      ...document.denormalize(),
-      url: getDocumentUri(req, document.uuid)
-    });
+    return res.status(200).json(document.denormalize());
   } catch (error) {
     logger.error('Error while getting document', error);
 
@@ -37,8 +37,4 @@ async function getDocumentInfo(req, res) {
       }
     });
   }
-}
-
-function getDocumentUri(req, documentUuid) {
-  return `${req.protocol}://${req.get('host')}/files/${documentUuid}`;
 }
