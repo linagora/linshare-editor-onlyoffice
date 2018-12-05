@@ -22,6 +22,7 @@ class Document {
   constructor(documentUuid, workGroupUuid, userEmail) {
     this.uuid = documentUuid;
     this.workGroup = workGroupUuid;
+    this.userEmail = userEmail;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
     this.storageService = new Client({
       baseUrl: config.get('linshare.baseUrl'),
@@ -41,6 +42,7 @@ class Document {
     document.documentType = getFileType(document.name);
     if (this.isDownloaded()) {
       document.downloadUrlPath = `/files/${this.uuid}`;
+      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.userEmail}`;
     }
 
     Object.assign(this, document);
