@@ -30,19 +30,12 @@
   },
   "db": {
     "connectionOptions": {
-      "db": {
-        "w": 1,
-        "fsync": true,
-        "native_parser": true
-      },
-      "server": {
-        "socketOptions": {
-          "keepAlive": 10000,
-          "connectTimeoutMS": 10000
-        },
-        "auto_reconnect": true,
-        "poolSize": 10
-      }
+      "w": 1,
+      "autoReconnect": true,
+      "socketTimeoutMS": 10000,
+      "keepAlive": 10000,
+      "poolSize": 10,
+      "useNewUrlParser": true
     },
     "connectionString": "mongodb://localhost:20018/linshare-oo-editor"
   }
