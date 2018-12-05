@@ -34,24 +34,26 @@ async function loadAuthorizedUser(req, res, next) {
     req.user = await client.user.authentication.authorized();
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      res.status(401).json({
+      return res.status(401).json({
         error: {
           code: 401,
           message: 'Unauthorized',
           details: 'Invalid user authorization information'
         }
       });
-    } else {
-      logger.error('Unable to check user authorization', error);
-
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: 'Unable to check user authorization'
-        }
-      });
     }
+
+    const details = 'Unable to check user authorization';
+
+    logger.error(details, error);
+
+    return res.status(500).json({
+      error: {
+        code: 500,
+        message: 'Server Error',
+        details
+      }
+    });
   }
 
   next();
