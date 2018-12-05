@@ -46,6 +46,19 @@ class Document {
     Object.assign(this, document);
   }
 
+  async update(url) {
+    const newDocument = await this.storageService.createDocumentFromUrl(
+      this.workGroup,
+      { url, fileName: this.name },
+      { parent: this.parent, async: false }
+    );
+
+    await this.storageService.deleteNode(this.workGroup, this.uuid);
+
+    newDocument.name = this.name;
+    await this.storageService.updateNode(this.workGroup, newDocument.uuid, newDocument);
+  }
+
   async save() {
     try {
       const fileData = await this.storageService.downloadDocument(this.workGroup, this.uuid, {
