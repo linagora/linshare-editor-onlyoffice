@@ -22,6 +22,7 @@ class Document {
   constructor(documentUuid, workGroupUuid, userEmail) {
     this.uuid = documentUuid;
     this.workGroup = workGroupUuid;
+    this.userEmail = userEmail;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
     this.storageService = new Client({
       baseUrl: config.get('linshare.baseUrl'),
@@ -41,9 +42,23 @@ class Document {
     document.documentType = getFileType(document.name);
     if (this.isDownloaded()) {
       document.downloadUrlPath = `/files/${this.uuid}`;
+      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.userEmail}`;
     }
 
     Object.assign(this, document);
+  }
+
+  async update(url) {
+    const newDocument = await this.storageService.createDocumentFromUrl(
+      this.workGroup,
+      { url, fileName: this.name },
+      { parent: this.parent, async: false }
+    );
+
+    await this.storageService.deleteNode(this.workGroup, this.uuid);
+
+    newDocument.name = this.name;
+    await this.storageService.updateNode(this.workGroup, newDocument.uuid, newDocument);
   }
 
   async save() {

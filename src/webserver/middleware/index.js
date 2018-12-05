@@ -5,9 +5,15 @@ const logger = require('../../lib/logger');
 const { getTokenFromHeaders } = require('../../lib/jwt');
 
 module.exports = {
+  requireAuthorizedEditor,
   requireQueries,
   loadAuthorizedUser
 };
+
+function requireAuthorizedEditor(req, res, next) {
+  // TODO: validate request from Document server
+  next();
+}
 
 async function loadAuthorizedUser(req, res, next) {
   const token = getTokenFromHeaders(req.headers);
