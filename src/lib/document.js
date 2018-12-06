@@ -49,7 +49,7 @@ class Document {
   async save() {
     try {
       const fileData = await this.storageService.downloadDocument(this.workGroup, this.uuid, {
-        responseType: 'arrayBuffer'
+        responseType: 'arraybuffer'
       });
 
       await writeFile(this.filePath, fileData);
