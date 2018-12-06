@@ -147,19 +147,12 @@ function getDefaultOptions() {
   const timeout = getTimeout();
 
   return {
-    db: {
-      w: 1,
-      fsync: true,
-      native_parser: true
-    },
-    server: {
-      socketOptions: {
-        keepAlive: timeout,
-        connectTimeoutMS: timeout
-      },
-      auto_reconnect: true,
-      poolSize: 10
-    }
+    w: 1,
+    autoReconnect: true,
+    socketTimeoutMS: timeout,
+    keepAlive: timeout,
+    poolSize: 10,
+    useNewUrlParser: true
   };
 }
 
