@@ -2,8 +2,32 @@ const config = require('config');
 const winston = require('winston');
 
 const { format } = winston;
-const { combine, colorize, simple } = format;
-const logger = winston.createLogger({ exitOnError: false, format: combine(colorize(), simple()) });
+const { combine, colorize, splat, printf, timestamp } = format;
+
+const customFormat = printf(({ timestamp, level, message, meta }) => {
+  const result = `${timestamp} ${level} ${message}`;
+
+  if (meta instanceof Error) {
+    return `${result}: ${meta.stack}`;
+  }
+
+  if (typeof meta === 'string') {
+    return `${result}: ${meta}`;
+  }
+
+  if (Array.isArray(meta)) {
+    return `${result}: ${meta.join(' ')}`;
+  }
+
+  if (meta instanceof Object && !Array.isArray(meta)) {
+    return `${result}`;
+  }
+
+  return result;
+});
+
+const logger = winston.createLogger({ exitOnError: false, format: combine(splat(), timestamp(), colorize(), customFormat) });
+
 
 logger.stream = {
   write: (message) => {
