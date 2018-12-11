@@ -20,7 +20,7 @@
     "express": "4.16.4",
     "http": "0.0.0",
     "jsonwebtoken": "8.4.0",
-    "linshare-api-client": "0.0.12",
+    "linshare-api-client": "0.0.17",
     "mongoose": "5.3.12",
     "morgan": "1.9.1",
     "socket.io": "2.1.1",
