@@ -17,6 +17,7 @@ module.exports = {
     DOCUMENT_DOWNLOADED: 'document:downloaded'
   },
   WEBSOCKET_EVENTS: {
-    DOCUMENT_LOAD_DONE: 'document:load:done'
+    DOCUMENT_LOAD_DONE: 'document:load:done',
+    ERROR: 'error'
   }
 };
