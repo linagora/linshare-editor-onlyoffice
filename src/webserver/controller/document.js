@@ -54,8 +54,9 @@ async function update(req, res) {
 
     try {
       await document.populateMetadata();
-
       await document.update(url);
+
+      document.remove();
     } catch (error) {
       const details = 'Error while updating document';
 
