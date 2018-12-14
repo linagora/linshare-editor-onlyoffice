@@ -1,21 +1,32 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
-const fs = require('fs');
-const path = require('path');
-
-const privateKey = fs.readFileSync(path.join(__dirname, '../../config/jwt.key'));
 
 module.exports = {
   generateToken,
   getTokenFromHeaders
 };
 
-function generateToken(payload = {}) {
-  return jwt.sign(payload, privateKey, {
-    algorithm: 'RS256',
-    expiresIn: config.get('linshare.jwt.expirationTime') || 300000,
-    issuer: config.get('linshare.jwt.issuer')
-  });
+function generateToken(payload = {}, options = {}) {
+  const { algorithm, key, expiresIn, issuer } = options;
+
+  if (!key) {
+    throw Error('Key is required when generating JWT token');
+  }
+
+  if (!algorithm) {
+    throw Error('Algorithm is required when generating JWT token');
+  }
+
+  const jwtOptions = {
+    algorithm,
+    expiresIn
+  };
+
+  if (issuer) {
+    jwtOptions.issuer = issuer;
+  }
+
+  return jwt.sign(payload, options.key, jwtOptions);
 }
 
 function getTokenFromHeaders(headers) {

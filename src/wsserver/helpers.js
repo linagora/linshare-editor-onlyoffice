@@ -8,6 +8,7 @@ function getSocketInfo(socket) {
   }
 
   return {
-    query: socket.request && socket.request._query
+    query: socket.request && socket.request._query,
+    user: socket.request && socket.request.user
   };
 }

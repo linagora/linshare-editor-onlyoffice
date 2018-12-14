@@ -6,7 +6,8 @@
     "baseUrl": "http://files.linshare.local/linshare/webservice/rest",
     "jwt": {
       "issuer": "linshare-editor",
-      "expirationTime": 300,
+      "expiresIn": "5m",
+      "algorithm": "RS256",
       "token": {
         "authorizationHeader": "authorization",
         "authorizationHeaderPrefix": "Bearer "
@@ -38,5 +39,15 @@
       "useNewUrlParser": true
     },
     "connectionString": "mongodb://localhost:20018/linshare-oo-editor"
+  },
+  "documentServer": {
+    "signature": {
+      "browser": {
+        "enable": false,
+        "algorithm": "HS256",
+        "secret": "secret",
+        "expiresIn": "5m"
+      }
+    }
   }
 }

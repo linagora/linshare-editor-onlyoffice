@@ -24,14 +24,14 @@ const init = function(sio) {
   documentNamespace.on('connection', function(socket) {
     logger.info(`New connection on ${NAMESPACE}`);
 
-    socket.on('subscribe', async function({ workGroupId, documentId }) {
+    socket.on('subscribe', async function({ workGroupId, documentId, documentStorageServerUrl }) {
       logger.info(`Joining document room ${documentId}`);
       socket.join(documentId);
 
-      const { userEmail } = getSocketInfo(socket).query;
+      const { user } = getSocketInfo(socket);
 
       try {
-        const document = new Document(documentId, workGroupId, userEmail);
+        const document = new Document(documentId, workGroupId, user, documentStorageServerUrl);
 
         await document.loadState();
 
@@ -45,9 +45,7 @@ const init = function(sio) {
         if (document.isDownloaded()) {
           await document.populateMetadata();
 
-          documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, {
-            document: document.denormalize()
-          });
+          documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
         }
       } catch (error) {
         logger.error('Error while getting document', error);
@@ -65,9 +63,7 @@ const init = function(sio) {
 
   function _onDocumentDownloaded(document) {
     if (documentNamespace) {
-      documentNamespace.to(document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, {
-        document
-      });
+      documentNamespace.to(document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
     }
   }
 };
