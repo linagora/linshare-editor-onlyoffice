@@ -1,4 +1,5 @@
 const config = require('config');
+const fs = require('fs');
 const path = require('path');
 const { Client } = require('linshare-api-client');
 
@@ -19,16 +20,28 @@ const {
 const STORAGE_DIR = path.join(__dirname, '../../files');
 
 class Document {
-  constructor(documentUuid, workGroupUuid, userEmail) {
+  constructor(documentUuid, workGroupUuid, user, documentStorageServerUrl) {
     this.uuid = documentUuid;
     this.workGroup = workGroupUuid;
-    this.userEmail = userEmail;
+    this.user = user;
+    this.documentStorageServerUrl = documentStorageServerUrl;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
+
+    const { algorithm, expiresIn, issuer } = config.get('linshare.jwt');
+
     this.storageService = new Client({
       baseUrl: config.get('linshare.baseUrl'),
       auth: {
         type: 'jwt',
-        token: generateToken({ sub: userEmail })
+        token: generateToken(
+          { sub: user.mail },
+          {
+            key: fs.readFileSync(path.join(__dirname, '../../config/jwt.key')),
+            algorithm,
+            expiresIn,
+            issuer
+          }
+        )
       }
     }).user.workgroup;
 
@@ -42,7 +55,7 @@ class Document {
     document.documentType = getFileType(document.name);
     if (this.isDownloaded()) {
       document.downloadUrlPath = `/files/${this.uuid}`;
-      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.userEmail}`;
+      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.user.mail}`;
     }
 
     Object.assign(this, document);
@@ -119,6 +132,40 @@ class Document {
 
   isDownloading() {
     return this.state === DOCUMENT_STATES.downloading;
+  }
+
+  buildDocumentserverPayload() {
+    const payload = {
+      document: {
+        fileType: this.fileType,
+        title: this.name,
+        url: `${this.documentStorageServerUrl}${this.downloadUrlPath}`,
+        key: this.uuid
+      },
+      documentType: this.documentType,
+      editorConfig: {
+        user: {
+          id: this.user.uuid,
+          name: `${this.user.firstName} ${this.user.lastName}`
+        },
+        callbackUrl: `${this.documentStorageServerUrl}${this.callbackUrlPath}`
+      }
+    };
+
+    const { enable, secret, algorithm, expiresIn } = config.get('documentServer.signature.browser');
+
+    if (!enable) {
+      return payload;
+    }
+
+    return {
+      ...payload,
+      token: generateToken(payload, {
+        key: secret,
+        algorithm,
+        expiresIn
+      })
+    };
   }
 }
 

@@ -36,6 +36,8 @@ module.exports = async function(socket, next) {
       return next(new Error('Bad user email'));
     }
 
+    socket.request.user = linShareUser;
+
     next();
   } catch (error) {
     logger.error('Error while authenticating socket token', error);
