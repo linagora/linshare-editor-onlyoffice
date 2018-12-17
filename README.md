@@ -37,3 +37,28 @@ npm start
 ```
 npm run test
 ```
+
+## Configurations
+### Enable authorization by JWT token for requests coming from OnlyOffice document server.
+
+From Document server side, change the server configuration of `services.CoAuthoring.token.enable.request.outbox` to `true` and define the JWT secret key in `services.CoAuthoring.secret.outbox.string`.
+
+From `linshare-editor-onlyoffice-backend` side, use the following configuration, note that both services must share a same `secret`
+```
+{
+  "documentServer": {
+      "signature": {
+        "request": {
+          "incoming": {
+            "enable": "true",
+            "algorithm": "HS256",
+            "secret": "secret",
+            "authorizationHeader": "authorization",
+            "authorizationHeaderPrefix": "Bearer "
+          }
+        }
+      }
+    }
+  }
+}
+```

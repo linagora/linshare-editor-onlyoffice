@@ -1,4 +1,4 @@
-const { loadAuthorizedUser, requireQueries, requireAuthorizedEditor } = require('../middleware');
+const { loadAuthorizedUser, requireQueries, validateToken } = require('../middleware');
 const { getDocumentInfo, update } = require('../controller/document');
 
 module.exports = (router) => {
@@ -12,7 +12,7 @@ module.exports = (router) => {
    * Ref: https://api.onlyoffice.com/editors/callback
    */
   router.post('/documents/track',
-    requireAuthorizedEditor,
+    validateToken,
     requireQueries(['documentUuid', 'workGroupUuid', 'userEmail']),
     update);
 };

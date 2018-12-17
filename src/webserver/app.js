@@ -7,6 +7,7 @@ const path = require('path');
 const config = require('config');
 const logger = require('../lib/logger');
 const api = require('./api');
+const { validateToken } = require('./middleware');
 
 const app = express();
 let format = 'combined';
@@ -29,8 +30,7 @@ function init() {
   app.use(bodyParser.urlencoded({
     extended: true
   }));
-  // TODO: add authorization method for getting static files
-  app.use('/files', express.static(path.join(__dirname, '../../files')));
+  app.use('/files', validateToken, express.static(path.join(__dirname, '../../files')));
   app.use('/api', api());
 
   app.server.listen(process.env.PORT || config.webserver.port, () => {
