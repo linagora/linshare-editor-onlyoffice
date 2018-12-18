@@ -50,7 +50,7 @@ async function update(req, res) {
   const { status, url } = req.body;
 
   if (status === 2 || status === 3) { // must save document, https://api.onlyoffice.com/editors/callback#status
-    const document = new Document(documentUuid, workGroupUuid, userEmail);
+    const document = new Document(documentUuid, workGroupUuid, { mail: userEmail });
 
     try {
       await document.populateMetadata();
