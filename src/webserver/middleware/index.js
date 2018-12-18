@@ -1,22 +1,19 @@
-const config = require('config');
+const config = require('config'),
+      jwt = require('jsonwebtoken');
 const { Client } = require('linshare-api-client');
 
 const logger = require('../../lib/logger');
 const { getTokenFromHeaders } = require('../../lib/jwt');
 
 module.exports = {
-  requireAuthorizedEditor,
+  validateToken,
   requireQueries,
   loadAuthorizedUser
 };
 
-function requireAuthorizedEditor(req, res, next) {
-  // TODO: validate request from Document server
-  next();
-}
-
 async function loadAuthorizedUser(req, res, next) {
-  const token = getTokenFromHeaders(req.headers);
+  const { authorizationHeader, authorizationHeaderPrefix } = config.get('linshare.jwt.token');
+  const token = getTokenFromHeaders(req.headers, { authorizationHeader, authorizationHeaderPrefix });
 
   if (!token) {
     res.status(400).json({
@@ -83,4 +80,39 @@ function requireQueries(queries) {
 
     next();
   };
+}
+
+function validateToken(req, res, next) {
+  const jwtInRequestConfig = config.get('documentServer.signature.request.incoming');
+
+  if (!jwtInRequestConfig.enable) {
+    return next();
+  }
+
+  const { secret, algorithm, authorizationHeader, authorizationHeaderPrefix } = jwtInRequestConfig;
+  const token = getTokenFromHeaders(req.headers, { authorizationHeader, authorizationHeaderPrefix });
+
+  if (!token) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'Requires JWT token'
+      }
+    });
+  }
+
+  try {
+    jwt.verify(token, secret, { algorithms: [algorithm] });
+  } catch (error) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'Invalid JWT token'
+      }
+    });
+  }
+
+  next();
 }

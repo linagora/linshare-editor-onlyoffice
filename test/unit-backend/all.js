@@ -7,6 +7,7 @@ before(function() {
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
   this.helpers = {};
+  this.config = {};
   helpers(this.helpers);
 });
 
@@ -29,6 +30,19 @@ beforeEach(function() {
       timestamp: () => {}
     },
     version: '3.0.0'
+  });
+
+  mockery.registerMock('config', {
+    get: () => this.config,
+    has: () => {},
+    log: {
+      file: {
+        enabled: false
+      },
+      console: {
+        enabled: false
+      }
+    }
   });
 });
 

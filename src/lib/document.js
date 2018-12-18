@@ -84,7 +84,7 @@ class Document {
       await this.setState(DOCUMENT_STATES.downloaded);
       await this.populateMetadata();
 
-      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).publish(this.denormalize());
+      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).publish(this);
     } catch (error) {
       await this.remove();
       // TODO: Send a websocket event for download fail

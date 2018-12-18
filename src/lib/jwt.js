@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
 
 module.exports = {
   generateToken,
@@ -29,9 +28,8 @@ function generateToken(payload = {}, options = {}) {
   return jwt.sign(payload, options.key, jwtOptions);
 }
 
-function getTokenFromHeaders(headers) {
-  const authorizationHeader = config.get('linshare.jwt.token.authorizationHeader');
-  const authorizationHeaderPrefix = config.get('linshare.jwt.token.authorizationHeaderPrefix');
+function getTokenFromHeaders(headers, options = {}) {
+  const { authorizationHeader, authorizationHeaderPrefix } = options;
 
   const authorization = headers[authorizationHeader];
 

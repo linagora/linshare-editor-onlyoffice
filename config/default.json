@@ -47,6 +47,15 @@
         "algorithm": "HS256",
         "secret": "secret",
         "expiresIn": "5m"
+      },
+      "request": {
+        "incoming": {
+          "enable": "false",
+          "algorithm": "HS256",
+          "secret": "secret",
+          "authorizationHeader": "authorization",
+          "authorizationHeaderPrefix": "Bearer "
+        }
       }
     }
   }
