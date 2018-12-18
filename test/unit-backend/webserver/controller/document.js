@@ -13,7 +13,7 @@ describe('The document controller', function() {
 
       mockery.registerMock('../../lib/document', documentLib);
 
-      const controller = require('../../../../src/webserver/controller/document');
+      const controller = this.helpers.requireBackend('webserver/controller/document');
       const req = {
         query: {
           workGroupUuid: 123,
