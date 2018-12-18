@@ -1,4 +1,9 @@
+const logger = require('../lib/logger');
+
 module.exports = {
+  build400Error,
+  build401Error,
+  build500Error,
   getSocketInfo
 };
 
@@ -10,5 +15,31 @@ function getSocketInfo(socket) {
   return {
     query: socket.request && socket.request._query,
     user: socket.request && socket.request.user
+  };
+}
+
+function build400Error(details) {
+  return {
+    code: 400,
+    message: 'Bad Request',
+    details
+  };
+}
+
+function build401Error(details) {
+  return {
+    code: 401,
+    message: 'Unauthorized',
+    details
+  };
+}
+
+function build500Error(details, error) {
+  logger.error(details, error);
+
+  return {
+    code: 500,
+    message: 'Server Error',
+    details
   };
 }
