@@ -33,6 +33,11 @@ Some of notable configurations are:
 npm start
 ```
 
+### Run in development mode
+```
+npm run dev
+```
+
 ### Run your unit tests
 ```
 npm run test
