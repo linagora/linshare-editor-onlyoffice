@@ -1,4 +1,8 @@
-module.exports = function(mixin) {
+module.exports = function(mixin, testEnv) {
+  mixin.requireBackend = function(path) {
+    return require(`${testEnv.basePath}/src/${path}`);
+  };
+
   mixin.express = {
     response: callback => {
       return {

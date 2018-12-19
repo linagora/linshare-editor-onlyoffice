@@ -1,14 +1,32 @@
-const mockery = require('mockery'),
-      chai = require('chai'),
-      helpers = require('../helpers');
+const mockery = require('mockery');
+const chai = require('chai');
+const path = require('path');
+const helpers = require('../helpers');
 
 before(function() {
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
+
+  const basePath = path.resolve(`${__dirname}/../..`);
+
+  this.testEnv = {
+    basePath,
+    initCore: callback => {
+      const core = require(`${basePath}/src/lib`);
+
+      core.init();
+      if (callback) {
+        callback();
+      }
+      return core;
+    }
+  };
+
   this.helpers = {};
   this.config = {};
-  helpers(this.helpers);
+
+  helpers(this.helpers, this.testEnv);
 });
 
 beforeEach(function() {
