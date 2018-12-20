@@ -2,14 +2,17 @@ const pubsub = require('../lib/pubsub');
 const logger = require('../lib/logger');
 const Document = require('../lib/document');
 const { DOCUMENT_STATES } = require('../lib/constants');
-const { getSocketInfo } = require('./helpers');
-
+const { getSocketInfo, build500Error } = require('./helpers');
 const { PUBSUB_EVENTS, WEBSOCKET_EVENTS } = require('../lib/constants');
 
 const NAMESPACE = '/documents';
 let initialized = false;
 
-const init = function(sio) {
+module.exports = {
+  init
+};
+
+function init(sio) {
   if (initialized) {
     logger.warn('The documents service is already initialized');
 
@@ -20,6 +23,7 @@ const init = function(sio) {
   const documentNamespace = sio.of(NAMESPACE);
 
   pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).subscribe(_onDocumentDownloaded);
+  pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOAD_FAILED).subscribe(_onDocumentDownloadFailed);
 
   documentNamespace.on('connection', function(socket) {
     logger.info(`New connection on ${NAMESPACE}`);
@@ -36,20 +40,16 @@ const init = function(sio) {
         await document.loadState();
 
         if (!document.state) {
-          await document.setState(DOCUMENT_STATES.downloading);
-
-          document.save()
-            .catch(error => logger.error('Error while saving document', error));
+          return _downloadDocument(document);
         }
 
         if (document.isDownloaded()) {
           await document.populateMetadata();
 
-          documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
+          socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
         }
       } catch (error) {
-        logger.error('Error while getting document', error);
-        documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.ERROR, new Error('Error while getting document'));
+        socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document', error));
       }
     });
 
@@ -61,13 +61,24 @@ const init = function(sio) {
 
   initialized = true;
 
+  async function _downloadDocument(document) {
+    try {
+      await document.setState(DOCUMENT_STATES.downloading);
+      await document.save();
+    } catch (error) {
+      logger.error('Error while saving document', error);
+    }
+  }
+
   function _onDocumentDownloaded(document) {
     if (documentNamespace) {
       documentNamespace.to(document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
     }
   }
-};
 
-module.exports = {
-  init
-};
+  function _onDocumentDownloadFailed(data) {
+    if (documentNamespace) {
+      documentNamespace.to(data.document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document', data.error));
+    }
+  }
+}

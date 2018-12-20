@@ -14,10 +14,12 @@ module.exports = {
     downloaded: 'downloaded'
   },
   PUBSUB_EVENTS: {
-    DOCUMENT_DOWNLOADED: 'document:downloaded'
+    DOCUMENT_DOWNLOADED: 'document:downloaded',
+    DOCUMENT_DOWNLOAD_FAILED: 'document:download:failed'
   },
   WEBSOCKET_EVENTS: {
     DOCUMENT_LOAD_DONE: 'document:load:done',
+    DOCUMENT_LOAD_FAILED: 'document:load:failed',
     ERROR: 'error'
   }
 };

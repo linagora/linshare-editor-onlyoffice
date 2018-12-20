@@ -86,8 +86,13 @@ class Document {
 
       pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).publish(this);
     } catch (error) {
+      // TODO: if removing document from db is failed, we cannot open that document anymore. It is always in "downloading" state!!!
       await this.remove();
-      // TODO: Send a websocket event for download fail
+
+      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOAD_FAILED).publish({
+        document: this,
+        error
+      });
 
       throw error;
     }
