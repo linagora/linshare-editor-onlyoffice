@@ -1,20 +1,20 @@
 const config = require('config');
-const fs = require('fs');
 const path = require('path');
-const { Client } = require('linshare-api-client');
 
 const pubsub = require('../lib/pubsub');
 const { PUBSUB_EVENTS } = require('../lib/constants');
 const Files = require('../lib/files');
 const { generateToken } = require('./jwt');
-const { DOCUMENT_STATES } = require('./constants');
+const { DOCUMENT_STATES, EDITABLE_EXTENSIONS } = require('./constants');
 const {
   createDirectory,
   deleteFile,
   existsSync,
   getFileType,
   getFileExtension,
-  writeFile
+  writeFile,
+  createLinshareClient,
+  verifyUserEditPermission
 } = require('./helpers');
 
 const STORAGE_DIR = path.join(__dirname, '../../files');
@@ -27,23 +27,7 @@ class Document {
     this.documentStorageServerUrl = documentStorageServerUrl;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
 
-    const { algorithm, expiresIn, issuer } = config.get('linshare.jwt');
-
-    this.storageService = new Client({
-      baseUrl: config.get('linshare.baseUrl'),
-      auth: {
-        type: 'jwt',
-        token: generateToken(
-          { sub: user.mail },
-          {
-            key: fs.readFileSync(path.join(__dirname, '../../config/jwt.key')),
-            algorithm,
-            expiresIn,
-            issuer
-          }
-        )
-      }
-    }).user.workgroup;
+    this.storageService = createLinshareClient({ sub: user.mail }).user.workgroup;
 
     createDirectory(STORAGE_DIR);
   }
@@ -137,6 +121,16 @@ class Document {
 
   isDownloading() {
     return this.state === DOCUMENT_STATES.downloading;
+  }
+
+  isEditableExtension() {
+    return EDITABLE_EXTENSIONS.indexOf(this.fileType) !== -1;
+  }
+
+  async canBeEdited() {
+    const editPermissionGranted = await verifyUserEditPermission(this.user, this.workGroup);
+
+    return editPermissionGranted;
   }
 
   buildDocumentserverPayload() {
