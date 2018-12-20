@@ -3,6 +3,7 @@ const logger = require('../lib/logger');
 module.exports = {
   build400Error,
   build401Error,
+  build403Error,
   build500Error,
   getSocketInfo
 };
@@ -30,6 +31,14 @@ function build401Error(details) {
   return {
     code: 401,
     message: 'Unauthorized',
+    details
+  };
+}
+
+function build403Error(details) {
+  return {
+    code: 403,
+    message: 'Forbidden',
     details
   };
 }

@@ -2,7 +2,8 @@ const pubsub = require('../lib/pubsub');
 const logger = require('../lib/logger');
 const Document = require('../lib/document');
 const { DOCUMENT_STATES } = require('../lib/constants');
-const { getSocketInfo, build500Error } = require('./helpers');
+const { getSocketInfo, build400Error, build403Error, build500Error } = require('./helpers');
+
 const { PUBSUB_EVENTS, WEBSOCKET_EVENTS } = require('../lib/constants');
 
 const NAMESPACE = '/documents';
@@ -29,9 +30,6 @@ function init(sio) {
     logger.info(`New connection on ${NAMESPACE}`);
 
     socket.on('subscribe', async function({ workGroupId, documentId, documentStorageServerUrl }) {
-      logger.info(`Joining document room ${documentId}`);
-      socket.join(documentId);
-
       const { user } = getSocketInfo(socket);
 
       try {
@@ -39,14 +37,26 @@ function init(sio) {
 
         await document.loadState();
 
+        if (!await document.canBeEdited()) {
+          return socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build403Error('User does not have required permissions to edit the document'));
+        }
+
+        await document.populateMetadata();
+
+        if (!document.isEditableExtension()) {
+          return socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build400Error('Document extension is not supported'));
+        }
+
+
+        logger.info(`Joining document room ${documentId}`);
+        socket.join(documentId);
+
         if (!document.state) {
           return _downloadDocument(document);
         }
 
         if (document.isDownloaded()) {
-          await document.populateMetadata();
-
-          socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
+          documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
         }
       } catch (error) {
         socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document', error));
