@@ -50,7 +50,7 @@
       },
       "request": {
         "incoming": {
-          "enable": "false",
+          "enable": false,
           "algorithm": "HS256",
           "secret": "secret",
           "authorizationHeader": "authorization",
