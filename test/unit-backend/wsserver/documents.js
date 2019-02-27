@@ -30,14 +30,14 @@ describe('The wsserver documents module', function() {
     Socket.prototype.join = noop;
 
     function DocumentMock() {}
-    const loadStateError = new Error('an error');
+    const loadError = new Error('an error');
     const jsonError = {
       code: 500,
       message: 'Server Error',
       details: 'Error while getting document'
     };
 
-    DocumentMock.prototype.loadState = sinon.stub().returns(Promise.reject(loadStateError));
+    DocumentMock.prototype.load = sinon.stub().returns(Promise.reject(loadError));
 
     helpersMock.build500Error = sinon.stub().returns(jsonError);
 
@@ -61,8 +61,8 @@ describe('The wsserver documents module', function() {
 
       socket.emit = sinon.spy();
       setImmediate(function() {
-        expect(DocumentMock.prototype.loadState).to.have.been.called;
-        expect(helpersMock.build500Error).to.have.been.calledWith('Error while getting document', loadStateError);
+        expect(DocumentMock.prototype.load).to.have.been.called;
+        expect(helpersMock.build500Error).to.have.been.calledWith('Error while getting document', loadError);
         expect(socket.emit).to.have.been.calledWith(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, jsonError);
 
         done();

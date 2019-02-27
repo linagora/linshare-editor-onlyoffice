@@ -1,5 +1,6 @@
 const config = require('config');
 const path = require('path');
+const uuidV4 = require('uuid/v4');
 
 const pubsub = require('../lib/pubsub');
 const { PUBSUB_EVENTS } = require('../lib/constants');
@@ -77,11 +78,12 @@ class Document {
     }
   }
 
-  async loadState() {
+  async load() {
     const document = await Files.getByUuid(this.uuid);
 
     if (document) {
       this.state = document.state;
+      this.key = document.key;
     }
   }
 
@@ -93,6 +95,8 @@ class Document {
     if (document) {
       await Files.updateByUuid(this.uuid, { state });
     } else {
+      this.key = uuidV4(); // Generate key for new document
+
       await Files.create(this);
     }
   }
@@ -134,7 +138,7 @@ class Document {
         fileType: this.fileType,
         title: this.name,
         url: `${this.documentStorageServerUrl}${this.downloadUrlPath}`,
-        key: this.uuid
+        key: this.key
       },
       documentType: this.documentType,
       editorConfig: {

@@ -13,7 +13,7 @@ async function getDocumentInfo(req, res) {
     const userEmail = req.user.mail;
     const document = new Document(documentUuid, workGroupUuid, userEmail);
 
-    await document.loadState();
+    await document.load();
 
     if (!document.state) {
       await document.setState(DOCUMENT_STATES.downloading);

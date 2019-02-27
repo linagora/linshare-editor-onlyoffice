@@ -35,7 +35,7 @@ function init(sio) {
       try {
         const document = new Document(documentId, workGroupId, user, documentStorageServerUrl);
 
-        await document.loadState();
+        await document.load();
 
         if (!await document.canBeEdited()) {
           return socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build403Error('User does not have required permissions to edit the document'));
