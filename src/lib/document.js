@@ -39,7 +39,7 @@ class Document {
     document.documentType = getFileType(document.name);
     if (this.isDownloaded()) {
       document.downloadUrlPath = `/files/${this.uuid}`;
-      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.user.mail}`;
+      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}`;
     }
 
     Object.assign(this, document);
@@ -142,7 +142,7 @@ class Document {
       documentType: this.documentType,
       editorConfig: {
         user: {
-          id: this.user.uuid,
+          id: this.user.mail,
           name: `${this.user.firstName} ${this.user.lastName}`
         },
         callbackUrl: `${config.webserver.baseUrl}${this.callbackUrlPath}`
