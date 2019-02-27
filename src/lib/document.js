@@ -145,7 +145,10 @@ class Document {
           id: this.user.mail,
           name: `${this.user.firstName} ${this.user.lastName}`
         },
-        callbackUrl: `${config.webserver.baseUrl}${this.callbackUrlPath}`
+        callbackUrl: `${config.webserver.baseUrl}${this.callbackUrlPath}`,
+        customization: {
+          forcesave: true
+        }
       }
     };
 
