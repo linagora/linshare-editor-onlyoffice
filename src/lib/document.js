@@ -101,7 +101,7 @@ class Document {
   }
 
   async remove() {
-    await Files.removeByUuid(this.uuid);
+    await Files.updateByUuid(this.uuid, { state: DOCUMENT_STATES.removed, key: uuidV4() });
     await deleteFile(this.filePath);
   }
 

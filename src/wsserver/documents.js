@@ -25,6 +25,8 @@ function init(sio) {
 
   pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOADED).subscribe(_onDocumentDownloaded);
   pubsub.topic(PUBSUB_EVENTS.DOCUMENT_DOWNLOAD_FAILED).subscribe(_onDocumentDownloadFailed);
+  pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVED).subscribe(_onDocumentSaveDone);
+  pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVE_FAILED).subscribe(_onDocumentSaveFailed);
 
   documentNamespace.on('connection', function(socket) {
     logger.info(`New connection on ${NAMESPACE}`);
@@ -50,7 +52,7 @@ function init(sio) {
         logger.info(`Joining document room ${documentId}`);
         socket.join(documentId);
 
-        if (!document.state) {
+        if (!document.state || document.state === DOCUMENT_STATES.removed) {
           return _downloadDocument(document);
         }
 
@@ -88,6 +90,22 @@ function init(sio) {
   function _onDocumentDownloadFailed(data) {
     if (documentNamespace) {
       documentNamespace.to(data.document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document', data.error));
+    }
+  }
+
+  function _onDocumentSaveDone(document) {
+    const roomClients = documentNamespace.adapter.rooms[document.uuid];
+
+    if (roomClients && roomClients.length) {
+      _downloadDocument(document);
+    }
+  }
+
+  function _onDocumentSaveFailed(document) {
+    const roomClients = documentNamespace.adapter.rooms[document.uuid];
+
+    if (roomClients && roomClients.length) {
+      documentNamespace.to(document.uuid).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document'));
     }
   }
 }
