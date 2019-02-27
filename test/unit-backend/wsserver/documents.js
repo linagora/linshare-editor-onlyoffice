@@ -55,8 +55,7 @@ describe('The wsserver documents module', function() {
     process.nextTick(function() {
       socket.emit('subscribe', {
         workGroupId: 'wgrId',
-        documentId: 'docId',
-        documentStorageServerUrl: 'url'
+        documentId: 'docId'
       });
 
       socket.emit = sinon.spy();

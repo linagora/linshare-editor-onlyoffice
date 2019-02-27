@@ -21,11 +21,10 @@ const {
 const STORAGE_DIR = path.join(__dirname, '../../files');
 
 class Document {
-  constructor(documentUuid, workGroupUuid, user, documentStorageServerUrl) {
+  constructor(documentUuid, workGroupUuid, user) {
     this.uuid = documentUuid;
     this.workGroup = workGroupUuid;
     this.user = user;
-    this.documentStorageServerUrl = documentStorageServerUrl;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
 
     this.storageService = createLinshareClient({ sub: user.mail }).user.workgroup;
@@ -137,7 +136,7 @@ class Document {
       document: {
         fileType: this.fileType,
         title: this.name,
-        url: `${this.documentStorageServerUrl}${this.downloadUrlPath}`,
+        url: `${config.webserver.baseUrl}${this.downloadUrlPath}`,
         key: this.key
       },
       documentType: this.documentType,
@@ -146,7 +145,7 @@ class Document {
           id: this.user.uuid,
           name: `${this.user.firstName} ${this.user.lastName}`
         },
-        callbackUrl: `${this.documentStorageServerUrl}${this.callbackUrlPath}`
+        callbackUrl: `${config.webserver.baseUrl}${this.callbackUrlPath}`
       }
     };
 

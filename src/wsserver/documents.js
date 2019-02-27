@@ -29,11 +29,11 @@ function init(sio) {
   documentNamespace.on('connection', function(socket) {
     logger.info(`New connection on ${NAMESPACE}`);
 
-    socket.on('subscribe', async function({ workGroupId, documentId, documentStorageServerUrl }) {
+    socket.on('subscribe', async function({ workGroupId, documentId }) {
       const { user } = getSocketInfo(socket);
 
       try {
-        const document = new Document(documentId, workGroupId, user, documentStorageServerUrl);
+        const document = new Document(documentId, workGroupId, user);
 
         await document.load();
 
@@ -46,7 +46,6 @@ function init(sio) {
         if (!document.isEditableExtension()) {
           return socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build400Error('Document extension is not supported'));
         }
-
 
         logger.info(`Joining document room ${documentId}`);
         socket.join(documentId);

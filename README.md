@@ -15,18 +15,18 @@ LINSHARE_USER=root@localhost.localdomain LINSHARE_PASS=adminlinshare LINSHARE_HO
 ```
 > LINSHARE_USER and LINSHARE_PASS are Linshare administrator's username and password.
 
+## Configurations
+Setup neccessary configurations in ```./config/default.json``` to make the app works properly:
+- **webserver.baseUrl**: base url of this backend app for communication with document server
+- **linshare.baseUrl**: base url to LinShare api.
+- **db.conectionString**: connection string to a MongoDB sever.
+
 ## Development
 
 ### Create a customized config file for development
 ```
 cp ./config/default.json ./config/development.json
 ```
-
-Some of notable configurations are:
-
-- **linshare.baseUrl**: base url to LinShare api.
-- **db.conectionString**: connection string to a MongoDB sever.
-
 
 ### Start server
 ```
