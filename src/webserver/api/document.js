@@ -13,6 +13,6 @@ module.exports = (router) => {
    */
   router.post('/documents/track',
     validateToken,
-    requireQueries(['documentUuid', 'workGroupUuid', 'userEmail']),
+    requireQueries(['documentUuid', 'workGroupUuid']),
     update);
 };

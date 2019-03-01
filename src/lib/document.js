@@ -1,5 +1,6 @@
 const config = require('config');
 const path = require('path');
+const uuidV4 = require('uuid/v4');
 
 const pubsub = require('../lib/pubsub');
 const { PUBSUB_EVENTS } = require('../lib/constants');
@@ -20,11 +21,10 @@ const {
 const STORAGE_DIR = path.join(__dirname, '../../files');
 
 class Document {
-  constructor(documentUuid, workGroupUuid, user, documentStorageServerUrl) {
+  constructor(documentUuid, workGroupUuid, user) {
     this.uuid = documentUuid;
     this.workGroup = workGroupUuid;
     this.user = user;
-    this.documentStorageServerUrl = documentStorageServerUrl;
     this.filePath = path.join(STORAGE_DIR, this.uuid);
 
     this.storageService = createLinshareClient({ sub: user.mail }).user.workgroup;
@@ -39,23 +39,18 @@ class Document {
     document.documentType = getFileType(document.name);
     if (this.isDownloaded()) {
       document.downloadUrlPath = `/files/${this.uuid}`;
-      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}&userEmail=${this.user.mail}`;
+      document.callbackUrlPath = `/api/documents/track?workGroupUuid=${this.workGroup}&documentUuid=${this.uuid}`;
     }
 
     Object.assign(this, document);
   }
 
   async update(url) {
-    const newDocument = await this.storageService.createDocumentFromUrl(
+    await this.storageService.createDocumentFromUrl(
       this.workGroup,
       { url, fileName: this.name },
       { parent: this.parent, async: false }
     );
-
-    await this.storageService.deleteNode(this.workGroup, this.uuid);
-
-    newDocument.name = this.name;
-    await this.storageService.updateNode(this.workGroup, newDocument.uuid, newDocument);
   }
 
   async save() {
@@ -82,11 +77,12 @@ class Document {
     }
   }
 
-  async loadState() {
+  async load() {
     const document = await Files.getByUuid(this.uuid);
 
     if (document) {
       this.state = document.state;
+      this.key = document.key;
     }
   }
 
@@ -98,12 +94,14 @@ class Document {
     if (document) {
       await Files.updateByUuid(this.uuid, { state });
     } else {
+      this.key = uuidV4(); // Generate key for new document
+
       await Files.create(this);
     }
   }
 
   async remove() {
-    await Files.removeByUuid(this.uuid);
+    await Files.updateByUuid(this.uuid, { state: DOCUMENT_STATES.removed, key: uuidV4() });
     await deleteFile(this.filePath);
   }
 
@@ -138,16 +136,19 @@ class Document {
       document: {
         fileType: this.fileType,
         title: this.name,
-        url: `${this.documentStorageServerUrl}${this.downloadUrlPath}`,
-        key: this.uuid
+        url: `${config.webserver.baseUrl}${this.downloadUrlPath}`,
+        key: this.key
       },
       documentType: this.documentType,
       editorConfig: {
         user: {
-          id: this.user.uuid,
+          id: this.user.mail,
           name: `${this.user.firstName} ${this.user.lastName}`
         },
-        callbackUrl: `${this.documentStorageServerUrl}${this.callbackUrlPath}`
+        callbackUrl: `${config.webserver.baseUrl}${this.callbackUrlPath}`,
+        customization: {
+          forcesave: true
+        }
       }
     };
 

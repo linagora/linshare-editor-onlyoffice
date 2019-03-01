@@ -19,11 +19,15 @@ module.exports = {
   },
   DOCUMENT_STATES: {
     downloading: 'downloading',
-    downloaded: 'downloaded'
+    downloaded: 'downloaded',
+    saving: 'saving',
+    removed: 'removed'
   },
   PUBSUB_EVENTS: {
     DOCUMENT_DOWNLOADED: 'document:downloaded',
-    DOCUMENT_DOWNLOAD_FAILED: 'document:download:failed'
+    DOCUMENT_DOWNLOAD_FAILED: 'document:download:failed',
+    DOCUMENT_SAVED: 'document:saved',
+    DOCUMENT_SAVE_FAILED: 'document:save:failed'
   },
   WEBSOCKET_EVENTS: {
     DOCUMENT_LOAD_DONE: 'document:load:done',
