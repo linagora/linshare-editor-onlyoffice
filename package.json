@@ -1,5 +1,5 @@
 {
-  "name": "linshare-editor-onlyoffice-backend",
+  "name": "linshare-editor-onlyoffice",
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://ci.linagora.com/linagora/lgs/linshare/products/linshare-editor-onlyoffice-backend"
+    "url": "https://ci.linagora.com/linagora/lgs/linshare/products/linshare-editor-onlyoffice"
   },
   "author": "Linagora R&D",
   "license": "AGPL-3.0",
