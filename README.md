@@ -48,7 +48,7 @@ npm run test
 
 From Document server side, change the server configuration of `services.CoAuthoring.token.enable.request.outbox` to `true` and define the JWT secret key in `services.CoAuthoring.secret.outbox.string`.
 
-From `linshare-editor-onlyoffice-backend` side, use the following configuration, note that both services must share a same `secret`
+From `linshare-editor-onlyoffice` side, use the following configuration, note that both services must share a same `secret`
 ```
 {
   "documentServer": {
