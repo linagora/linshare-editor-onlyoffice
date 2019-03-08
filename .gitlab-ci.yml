@@ -1,13 +1,110 @@
-image: node:10
+# vim: syntax=yaml textwidth=120 expandtab tabstop=2 softtabstop=2 shiftwidth=2 autoindent
 
 stages:
+  - prepare
+  - linters
+  - build
   - test
+  - deploy
 
-test:
-  stage: test
+
+.cache-tpl: &cache-tpl
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules
+  policy: pull
+
+.build-tpl: &build-tpl
+  # we need to use this specific version of node
+  # otherwise you will get the following error during the tests:
+  # TypeError: Cannot assign to read only property
+  image: node:11.10.1
   tags:
     - docker
-  image: node:10
+  cache:
+    <<: *cache-tpl
+
+.test-tpl: &test-tpl
+  <<: *build-tpl
+  except:
+    variables:
+      - $SKIP_TESTS
+    refs:
+      - master@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - tags@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - /^release-.*/@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+
+prepare:
+  <<: *build-tpl
+  stage: prepare
+  cache:
+    <<: *cache-tpl
+    policy: pull-push
   script:
-   - npm install
-   - npm run test
+    - npm install
+  except:
+    variables:
+      - $SKIP_PREPARE
+    refs:
+      - master@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - tags@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - /^release-.*/@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+
+
+linters:
+  <<: *build-tpl
+  stage: linters
+  script:
+    - npm run lint
+  except:
+    variables:
+      - $SKIP_LINTERS
+    refs:
+      - master@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - tags@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - /^release-.*/@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+
+check_author:
+  image: docker-registry.linagora.com:5000/lgs-releases/gitlab-integrity-checks:latest
+  stage: prepare
+  variables:
+    GIT_DEPTH: "1"
+  tags:
+    - ultralight
+  script:
+    - check_author.py check "$GITLAB_USER_EMAIL" "$GITLAB_USER_NAME" --no-accents
+  except:
+    refs:
+      - master@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - tags@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - /^release-.*/@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+
+test_unit:
+  <<: *test-tpl
+  stage: test
+  script:
+   - npm run test:unit
+
+deploy-snapshot:
+  image: docker-registry.linagora.com:5000/linshare-releases/linshare-build-helper:latest
+  stage: deploy
+  tags:
+    - docker
+  script:
+    - mvn -P hard-clean clean package deploy
+    - CHANNEL=snapshots
+    - VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+    - curl -s -X POST
+      -F "token=${BUILD_DOCKER_IMAGE_TOKEN}"
+      -F "ref=${CI_COMMIT_REF_NAME}"
+      -F "variables[VERSION]=${VERSION}"
+      -F "variables[CHANNEL]=${CHANNEL}"
+      https://ci.linagora.com/api/v4/projects/1766/trigger/pipeline
+
+  except:
+    variables:
+      - $SKIP_DEPLOY
+  only:
+    refs:
+      - master@linagora/lgs/linshare/products/linshare-editor-onlyoffice
+      - /^maintenance-.*/@linagora/lgs/linshare/products/linshare-editor-onlyoffice
