@@ -1,6 +1,6 @@
 {
   "name": "linshare-editor-onlyoffice",
-  "version": "1.0.0",
+  "version": "2.0.0-SNAPSHOT",
   "scripts": {
     "start": "node server.js",
     "dev": "cross-env NODE_ENV=development nodemon --inspect server.js",

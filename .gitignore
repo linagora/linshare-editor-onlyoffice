@@ -2,3 +2,6 @@ node_modules/
 package-lock.json
 files/*
 config/development.json
+node
+dist
+target
