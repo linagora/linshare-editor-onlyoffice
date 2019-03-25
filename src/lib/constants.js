@@ -5,13 +5,6 @@ module.exports = {
     presentation: ['pps', 'ppsx', 'ppsm', 'ppt', 'pptx', 'pptm', 'pot', 'potx', 'potm', 'odp', 'fodp', 'otp']
   },
   EDITABLE_EXTENSIONS: ['doc', 'docx', 'odt', 'rtf', 'txt'],
-  LINSHARE_ROLE_ACTIONS: {
-    create: 'CREATE',
-    delete: 'DELETE'
-  },
-  LINSHARE_ROLE_RESOURCE_TYPES: {
-    file: 'FILE'
-  },
   DOCUMENT_TYPES: {
     text: 'text',
     spreadsheet: 'spreadsheet',

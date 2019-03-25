@@ -1,10 +1,10 @@
 const fs = require('fs');
-const { Client } = require('linshare-api-client');
 const path = require('path');
 const config = require('config');
+const { Client } = require('linshare-api-client');
 const { generateToken } = require('./jwt');
 
-const { DOCUMENT_EXTENSIONS, DOCUMENT_TYPES, LINSHARE_ROLE_ACTIONS, LINSHARE_ROLE_RESOURCE_TYPES } = require('./constants');
+const { DOCUMENT_EXTENSIONS, DOCUMENT_TYPES } = require('./constants');
 
 module.exports = {
   createDirectory,
@@ -79,36 +79,24 @@ function createLinshareClient(tokenPayload) {
 }
 
 async function verifyUserEditPermission(user, workGroupId) {
-  let sharedSpaceNodeMember;
+  let sharedSpaceNodeMember, permissions;
   const linshareClient = createLinshareClient({ sub: user.mail });
+
   try {
     sharedSpaceNodeMember = await linshareClient.user.sharedSpaceNodes.findMemberByAccountUuid(workGroupId, user.uuid);
   } catch (error) {
-    if (error.response.status === 404) {
-      return false;
+    if (error.response && error.response.status && error.response.status === 404) {
+      throw new Error('Unable to find user in target workgroup');
     }
 
     throw error;
   }
-  const permissions = await linshareClient.user.sharedSpaceRoles.findAllPermissions(sharedSpaceNodeMember.role.uuid);
-  let canCreate = false,
-      canDelete = false;
 
-  for (let i = 0; i < permissions.length; i++) {
-    if (permissions[i].resource === LINSHARE_ROLE_RESOURCE_TYPES.file) {
-      if (permissions[i].action === LINSHARE_ROLE_ACTIONS.create) {
-        canCreate = true;
-      }
-
-      if (permissions[i].action === LINSHARE_ROLE_ACTIONS.delete) {
-        canDelete = true;
-      }
-
-      if (canCreate && canDelete) {
-        return true;
-      }
-    }
+  try {
+    permissions = await linshareClient.user.sharedSpaceRoles.findAllPermissions(sharedSpaceNodeMember.role.uuid);
+  } catch (error) {
+    throw error;
   }
 
-  return false;
+  return permissions.some(permission => permission.action === 'UPDATE' && permission.resource === 'FILE');
 }
