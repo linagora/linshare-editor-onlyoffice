@@ -3,10 +3,9 @@ const path = require('path');
 const uuidV4 = require('uuid/v4');
 
 const pubsub = require('../lib/pubsub');
-const { PUBSUB_EVENTS } = require('../lib/constants');
 const Files = require('../lib/files');
 const { generateToken } = require('./jwt');
-const { DOCUMENT_STATES, EDITABLE_EXTENSIONS } = require('./constants');
+const { DOCUMENT_STATES, EDITABLE_EXTENSIONS, PUBSUB_EVENTS } = require('./constants');
 const {
   createDirectory,
   deleteFile,
@@ -33,7 +32,17 @@ class Document {
   }
 
   async populateMetadata() {
-    const document = await this.storageService.getNode(this.workGroup, this.uuid);
+    let document;
+
+    try {
+      document = await this.storageService.getNode(this.workGroup, this.uuid);
+    } catch (error) {
+      if (error.response && error.response.status && error.response.status === 404) {
+        throw new Error('Document not found');
+      }
+
+      throw error;
+    }
 
     document.fileType = getFileExtension(document.name);
     document.documentType = getFileType(document.name);

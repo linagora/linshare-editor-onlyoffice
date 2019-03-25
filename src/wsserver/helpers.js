@@ -4,6 +4,7 @@ module.exports = {
   build400Error,
   build401Error,
   build403Error,
+  build404Error,
   build500Error,
   getSocketInfo
 };
@@ -16,6 +17,14 @@ function getSocketInfo(socket) {
   return {
     query: socket.request && socket.request._query,
     user: socket.request && socket.request.user
+  };
+}
+
+function build404Error(details) {
+  return {
+    code: 404,
+    message: 'Not Found',
+    details
   };
 }
 

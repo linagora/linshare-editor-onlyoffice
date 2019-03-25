@@ -2,7 +2,7 @@ const pubsub = require('../lib/pubsub');
 const logger = require('../lib/logger');
 const Document = require('../lib/document');
 const { DOCUMENT_STATES } = require('../lib/constants');
-const { getSocketInfo, build400Error, build403Error, build500Error } = require('./helpers');
+const { getSocketInfo, build400Error, build403Error, build404Error, build500Error } = require('./helpers');
 
 const { PUBSUB_EVENTS, WEBSOCKET_EVENTS } = require('../lib/constants');
 
@@ -60,6 +60,13 @@ function init(sio) {
           documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
         }
       } catch (error) {
+        if (
+          error.message === 'Document not found'
+          || error.message === 'Unable to find user in target workgroup'
+        ) {
+          return socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build404Error(error.message));
+        }
+
         socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_FAILED, build500Error('Error while getting document', error));
       }
     });
