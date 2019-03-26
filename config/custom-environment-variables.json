@@ -1,0 +1,12 @@
+{
+  "webserver": {
+    "baseUrl": "BASE_URL"
+  },
+  "linshare": {
+    "baseUrl": "LINSHARE_API_BASE_URL"
+  },
+  "db": {
+    "connectionString": "MONGODB_CONNECTION"
+  }
+}
+  

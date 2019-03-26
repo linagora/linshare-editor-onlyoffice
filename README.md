@@ -19,7 +19,9 @@ LINSHARE_USER=root@localhost.localdomain LINSHARE_PASS=adminlinshare LINSHARE_HO
 Setup neccessary configurations in ```./config/default.json``` to make the app works properly:
 - **webserver.baseUrl**: base url of this backend app for communication with document server
 - **linshare.baseUrl**: base url to LinShare api.
-- **db.conectionString**: connection string to a MongoDB sever.
+- **db.connectionString**: connection string to a MongoDB sever.
+
+In order to utilize environment values for custom configuration, you can add your own environment values that will be used for certain configuration in `config/custom-environment-variables.json`. This configuration will override the other configuration files to use the environment values instead.
 
 ## Development
 
