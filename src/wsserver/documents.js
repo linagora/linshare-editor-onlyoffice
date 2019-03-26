@@ -57,7 +57,7 @@ function init(sio) {
         }
 
         if (document.isDownloaded()) {
-          documentNamespace.to(documentId).emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
+          socket.emit(WEBSOCKET_EVENTS.DOCUMENT_LOAD_DONE, document.buildDocumentserverPayload());
         }
       } catch (error) {
         if (
