@@ -4,7 +4,7 @@ module.exports = {
     spreadsheet: ['xls', 'xlsx', 'xlsm', 'xlt', 'xltx', 'xltm', 'ods', 'fods', 'ots', 'csv'],
     presentation: ['pps', 'ppsx', 'ppsm', 'ppt', 'pptx', 'pptm', 'pot', 'potx', 'potm', 'odp', 'fodp', 'otp']
   },
-  EDITABLE_EXTENSIONS: ['doc', 'docx', 'odt', 'rtf', 'txt'],
+  EDITABLE_EXTENSIONS: ['doc', 'docx', 'odt', 'rtf', 'txt', 'xlsx', 'ods', 'csv', 'pptx', 'odp'],
   DOCUMENT_TYPES: {
     text: 'text',
     spreadsheet: 'spreadsheet',
