@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const mockery = require('mockery');
+const { ACCOUNT_NOT_A_MEMBER, ACCOUNT_NOT_AUTHORIZED_TO_LIST } = require('../../../src/lib/constants').LINSHARE_ERROR_CODES;
 
 describe('The lib helpers', function() {
   describe('The verifyUserEditPermission function', function() {
@@ -12,14 +13,15 @@ describe('The lib helpers', function() {
       }) });
     });
 
-    it('should reject with custom error if member id of user on workgroup not found', function(done) {
+    it('should reject with custom error if user is not a member of shared space', function(done) {
       function ClientMock() {
         this.user = {
-          sharedSpaceNodes: {
-            findMemberByAccountUuid() {
+          sharedSpaces: {
+            getMembers() {
               const error = new Error();
 
-              error.response = { status: 404 };
+              error.response = { data: { errCode: ACCOUNT_NOT_A_MEMBER } };
+
               return Promise.reject(error);
             }
           }
@@ -41,8 +43,8 @@ describe('The lib helpers', function() {
     it('should reject on error of finding member in target workgroup', function(done) {
       function ClientMock() {
         this.user = {
-          sharedSpaceNodes: {
-            findMemberByAccountUuid() {
+          sharedSpaces: {
+            getMembers() {
               return Promise.reject(new Error('something wrong'));
             }
           }
@@ -64,9 +66,9 @@ describe('The lib helpers', function() {
     it('should reject on error of getting permissions', function(done) {
       function ClientMock() {
         this.user = {
-          sharedSpaceNodes: {
-            findMemberByAccountUuid() {
-              return Promise.resolve({ role: { uuid: '123' } });
+          sharedSpaces: {
+            getMembers() {
+              return Promise.resolve([{ role: { uuid: '123' } }]);
             }
           },
           sharedSpaceRoles: {
@@ -89,12 +91,34 @@ describe('The lib helpers', function() {
         });
     });
 
+    it('should resolve with false if user has no authorization to get shared spaces members', function() {
+      function ClientMock() {
+        this.user = {
+          sharedSpaces: {
+            getMembers() {
+              const error = new Error();
+
+              error.response = { data: { errCode: ACCOUNT_NOT_AUTHORIZED_TO_LIST } };
+
+              return Promise.reject(error);
+            }
+          }
+        };
+      }
+
+      mockery.registerMock('linshare-api-client', { Client: ClientMock });
+
+      const helpers = this.helpers.requireBackend('lib/helpers');
+
+      expect(helpers.verifyUserEditPermission({ mail: 'foo@bar' })).to.eventually.equal(false);
+    });
+
     it('should resolve with false if user has no UPDATE permission on FILE resource', function() {
       function ClientMock() {
         this.user = {
-          sharedSpaceNodes: {
-            findMemberByAccountUuid() {
-              return Promise.resolve({ role: { uuid: '123' } });
+          sharedSpaces: {
+            getMembers() {
+              return Promise.resolve([{ role: { uuid: '123' } }]);
             }
           },
           sharedSpaceRoles: {
@@ -115,9 +139,9 @@ describe('The lib helpers', function() {
     it('should resolve with true if user has no UPDATE permission on FILE resource', function() {
       function ClientMock() {
         this.user = {
-          sharedSpaceNodes: {
-            findMemberByAccountUuid() {
-              return Promise.resolve({ role: { uuid: '123' } });
+          sharedSpaces: {
+            getMembers() {
+              return Promise.resolve([{ role: { uuid: '123' } }]);
             }
           },
           sharedSpaceRoles: {

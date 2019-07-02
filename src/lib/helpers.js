@@ -3,8 +3,9 @@ const path = require('path');
 const config = require('config');
 const { Client } = require('linshare-api-client');
 const { generateToken } = require('./jwt');
+const { DOCUMENT_EXTENSIONS, DOCUMENT_TYPES, LINSHARE_ERROR_CODES } = require('./constants');
 
-const { DOCUMENT_EXTENSIONS, DOCUMENT_TYPES } = require('./constants');
+const { ACCOUNT_NOT_AUTHORIZED_TO_LIST, ACCOUNT_NOT_A_MEMBER } = LINSHARE_ERROR_CODES;
 
 module.exports = {
   createDirectory,
@@ -79,21 +80,29 @@ function createLinshareClient(tokenPayload) {
 }
 
 async function verifyUserEditPermission(user, workGroupId) {
-  let sharedSpaceNodeMember, permissions;
+  let sharedSpaceMembers, permissions;
   const linshareClient = createLinshareClient({ sub: user.mail });
 
   try {
-    sharedSpaceNodeMember = await linshareClient.user.sharedSpaceNodes.findMemberByAccountUuid(workGroupId, user.uuid);
+    sharedSpaceMembers = await linshareClient.user.sharedSpaces.getMembers(workGroupId, {
+      filterByAccountUuid: user.uuid
+    });
   } catch (error) {
-    if (error.response && error.response.status && error.response.status === 404) {
+    const errorCode = error.response && error.response.data && error.response.data.errCode;
+
+    if (errorCode === ACCOUNT_NOT_A_MEMBER) {
       throw new Error('Unable to find user in target workgroup');
+    }
+
+    if (errorCode === ACCOUNT_NOT_AUTHORIZED_TO_LIST) {
+      return false;
     }
 
     throw error;
   }
 
   try {
-    permissions = await linshareClient.user.sharedSpaceRoles.findAllPermissions(sharedSpaceNodeMember.role.uuid);
+    permissions = await linshareClient.user.sharedSpaceRoles.findAllPermissions(sharedSpaceMembers[0].role.uuid);
   } catch (error) {
     throw error;
   }

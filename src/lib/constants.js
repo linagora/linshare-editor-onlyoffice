@@ -26,5 +26,9 @@ module.exports = {
     DOCUMENT_LOAD_DONE: 'document:load:done',
     DOCUMENT_LOAD_FAILED: 'document:load:failed',
     ERROR: 'error'
+  },
+  LINSHARE_ERROR_CODES: {
+    ACCOUNT_NOT_A_MEMBER: 62004,
+    ACCOUNT_NOT_AUTHORIZED_TO_LIST: 62005
   }
 };
