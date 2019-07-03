@@ -46,9 +46,34 @@ npm run test
 ```
 
 ## Configurations
+
+### Enable authorization by JWT token between OnlyOffice document server and Editor application
+
+OnlyOffice document server can enforce JWT authorization for requests coming from frontend client. Requests from frontend client therefore have to contain a signed payload that are retrieved from `linshare-editor-onlyoffice` server.
+
+This authorization process requires configuration from both [OnlyOffice document server](https://api.onlyoffice.com/editors/signature) and `linshare-editor-onlyoffice` server.
+
+- From document server side, change the server configuration of `services.CoAuthoring.token.enable.browser` to `true` and define the JWT secret key in `services.CoAuthoring.secret.inbox.string`.
+- From `linshare-editor-onlyoffice` side, use the following configuration, note that both services must share a same `secret`
+```
+{
+  "documentServer": {
+      "signature": {
+        "browser": {
+          "enable": true,
+          "algorithm": "HS256",
+          "secret": "secret",
+          "expiresIn": "5m"
+        }
+      }
+    }
+  }
+}
+```
+
 ### Enable authorization by JWT token for requests coming from OnlyOffice document server.
 
-From Document server side, change the server configuration of `services.CoAuthoring.token.enable.request.outbox` to `true` and define the JWT secret key in `services.CoAuthoring.secret.outbox.string`.
+From document server side, change the server configuration of `services.CoAuthoring.token.enable.request.outbox` to `true` and define the JWT secret key in `services.CoAuthoring.secret.outbox.string`.
 
 From `linshare-editor-onlyoffice` side, use the following configuration, note that both services must share a same `secret`
 ```
