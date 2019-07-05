@@ -37,7 +37,8 @@
       "socketTimeoutMS": 10000,
       "keepAlive": 10000,
       "poolSize": 10,
-      "useNewUrlParser": true
+      "useNewUrlParser": true,
+      "useCreateIndex": true
     },
     "connectionString": "mongodb://localhost:20018/linshare-oo-editor"
   },
