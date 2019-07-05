@@ -152,7 +152,8 @@ function getDefaultOptions() {
     socketTimeoutMS: timeout,
     keepAlive: timeout,
     poolSize: 10,
-    useNewUrlParser: true
+    useNewUrlParser: true,
+    useCreateIndex: true
   };
 }
 
