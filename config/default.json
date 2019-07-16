@@ -45,14 +45,14 @@
   "documentServer": {
     "signature": {
       "browser": {
-        "enable": false,
+        "enable": true,
         "algorithm": "HS256",
         "secret": "secret",
         "expiresIn": "5m"
       },
       "request": {
         "incoming": {
-          "enable": false,
+          "enable": true,
           "algorithm": "HS256",
           "secret": "secret",
           "authorizationHeader": "authorization",
