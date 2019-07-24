@@ -53,12 +53,12 @@ async function update(req, res) {
   const document = new Document(documentUuid, workGroupUuid, { mail: userEmail });
 
   try {
-    if (status === 6 || status === 7) { // Force save
+    if (status === 6) { // Force save
       await document.populateMetadata();
       await document.update(url);
     }
 
-    if (status === 2 || status === 3) {
+    if (status === 2) {
       await document.setState(DOCUMENT_STATES.saving);
       await document.populateMetadata();
       await document.update(url);
