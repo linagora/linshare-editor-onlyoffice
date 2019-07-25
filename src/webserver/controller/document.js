@@ -43,45 +43,69 @@ async function getDocumentInfo(req, res) {
 
 /**
  * Update document to Document storage service (LinShare) base on status of document returned from Document server.
- * Must return { error: 0 } as response.
- * Ref: https://api.onlyoffice.com/editors/callback#error-0
+ *
+ * This method will handle two kinds of the saving event from document server:
+ * - Normal saving: is received after the document is closed for editing with the identifier
+ * of the user who was the last to send the changes to the document editing service
+ * - Force saving: is received when the force saving request is performed.
+ *
+ * @param {Object} req Request from Document server https://api.onlyoffice.com/editors/callback
+ * @param {Object} res
  */
 async function update(req, res) {
-  const { workGroupUuid, documentUuid } = req.query;
   const { status, url, users } = req.body;
-  const userEmail = Array.isArray(users) && users[0]; // https://api.onlyoffice.com/editors/callback#users
-  const document = new Document(documentUuid, workGroupUuid, { mail: userEmail });
 
-  try {
-    if (status === 6) { // Force save
-      await document.populateMetadata();
-      await document.update(url);
+  let savingMethod;
+
+  if (status === 2) {
+    savingMethod = _normalSaving;
+  } else if (status === 6) {
+    savingMethod = _forceSaving;
+  }
+
+  if (savingMethod) {
+    const { workGroupUuid, documentUuid } = req.query;
+    const document = new Document(documentUuid, workGroupUuid, { mail: users[0] });
+
+    try {
+      await savingMethod(document, url);
+    } catch (err) {
+      const details = 'Error while updating document';
+
+      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVE_FAILED).publish(document);
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
     }
-
-    if (status === 2) {
-      await document.setState(DOCUMENT_STATES.saving);
-      await document.populateMetadata();
-      await document.update(url);
-      await document.remove(); // Only remove local file and generate new key when the document is normal saved (not force save)
-
-      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVED).publish(document); // Successfully saving file to Linshare
-    }
-  } catch (error) {
-    const details = 'Error while updating document';
-
-    pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVE_FAILED).publish(document);
-    logger.error(details, error);
-
-    return res.status(500).json({
-      error: {
-        code: 500,
-        message: 'Server Error',
-        details
-      }
-    });
   }
 
   res.status(200).json({
     error: 0
   });
+}
+
+async function _forceSaving(document, url) {
+  await document.populateMetadata();
+  await document.update(url);
+}
+
+async function _normalSaving(document, url) {
+  try {
+    await document.setState(DOCUMENT_STATES.saving);
+    await document.populateMetadata();
+    await document.update(url);
+    await document.remove();
+
+    pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVED).publish(document);
+  } catch (err) {
+    await document.remove();
+
+    throw err;
+  }
 }
