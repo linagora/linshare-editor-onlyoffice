@@ -72,7 +72,6 @@ async function update(req, res) {
     } catch (err) {
       const details = 'Error while updating document';
 
-      pubsub.topic(PUBSUB_EVENTS.DOCUMENT_SAVE_FAILED).publish(document);
       logger.error(details, err);
 
       return res.status(500).json({
