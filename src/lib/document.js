@@ -109,6 +109,27 @@ class Document {
     }
   }
 
+  /**
+    Currently, the key sent to document server will
+    immediately become invalid after document server
+    sends a request to callbackUrl along with the status
+    of 2 and the edited document download url.
+
+    To avoid users try to access the document using
+    the old invalid key while it being saved to Linshare,
+    let the user wait until saving is done and new key
+    is generated (by set "saving" state for the document).
+
+    This solution does not totally get rid of invalid key
+    problem as the user might try to access the document
+    by the time document state being updated from "downloaded"
+    to "saving". Having said that, this will minimize the
+    possibility.
+
+    Read more:
+    https://api.onlyoffice.com/editors/troubleshooting#key
+    https://github.com/ONLYOFFICE/DocumentServer/issues/513
+  */
   async remove() {
     await Files.updateByUuid(this.uuid, { state: DOCUMENT_STATES.removed, key: uuidV4() });
     await deleteFile(this.filePath);

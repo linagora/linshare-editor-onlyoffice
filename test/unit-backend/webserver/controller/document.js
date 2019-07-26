@@ -52,12 +52,12 @@ describe('The document controller', function() {
       const req = {
         query: {
           workGroupUuid: 123,
-          documentUuid: 456,
-          userEmail: 'abc@def.com'
+          documentUuid: 456
         },
         body: {
           status: 6, // Forced save
-          url: 'http://example.com'
+          url: 'http://example.com',
+          users: ['abc@def.com']
         }
       };
       const res = this.helpers.express.response(
@@ -85,7 +85,8 @@ describe('The document controller', function() {
         },
         body: {
           status: 2,
-          url: 'http://example.com'
+          url: 'http://example.com',
+          users: []
         }
       };
       const res = this.helpers.express.response(
@@ -135,7 +136,8 @@ describe('The document controller', function() {
         },
         body: {
           status: 2,
-          url: 'http://example.com'
+          url: 'http://example.com',
+          users: []
         }
       };
       const res = this.helpers.express.response(
