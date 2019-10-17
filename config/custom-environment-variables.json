@@ -7,6 +7,19 @@
   },
   "db": {
     "connectionString": "MONGODB_CONNECTION"
+  },
+  "documentServer": {
+    "signature": {
+      "browser": {
+        "enable": "DOCUMENT_SERVER_JWT_BROWSER_TOKEN_ENABLE",
+        "secret": "DOCUMENT_SERVER_JWT_BROWSER_TOKEN_SECRET"
+      },
+      "request": {
+        "incoming": {
+          "enable": "DOCUMENT_SERVER_JWT_INCOMING_REQUEST_ENABLE",
+          "secret": "DOCUMENT_SERVER_JWT_INCOMING_REQUEST_SECRET"
+        }
+      }
+    }
   }
 }
-  
