@@ -23,7 +23,7 @@
     "http": "0.0.0",
     "jsonwebtoken": "8.4.0",
     "linshare-api-client": "0.0.21",
-    "mongoose": "5.6.9",
+    "mongoose": "5.7.7",
     "morgan": "1.9.1",
     "socket.io": "2.1.1",
     "uuid": "3.3.2",
